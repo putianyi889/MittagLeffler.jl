@@ -1,6 +1,11 @@
 using MittagLeffler
 using Test
 
+include("aqua_test.jl")
+if VERSION >= v"1.7" && VERSION <= v"1.10"
+    include("jet_test.jl")
+end
+
 @testset "mittleff" begin
     @test isapprox(mittleff(0.5, 0.5, 0.5),  1.5403698281390346)
     @test isapprox(mittleff(1.5, 0.5, 0.5), 1.1448466286155243)
@@ -23,7 +28,8 @@ end
 @testset "derivative" begin
     myder(f,x,h) = (f(x+h/2)-f(x-h/2))/h
     @test isapprox(myder(z -> mittleff(.4,z),.4,1e-5), mittleffderiv(.4,.4))
-    @test abs(myder(z -> mittleff(big".4",z),big".4",BigFloat(1//10^16)) - mittleffderiv(big".4",big".4")) < 1e-32
+    _eps = Int == Int32 ? 1e-18 : 1e-32
+    @test abs(myder(z -> mittleff(big".4",z),big".4",BigFloat(1//10^16)) - mittleffderiv(big".4",big".4")) < _eps
 end
 
 @testset "issue #8" begin
